@@ -1,0 +1,30 @@
+name: check-token
+# 게시 없이 토큰이 살아 있는지만 확인 (인스타 계정 이름·게시 한도 조회)
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/check-token.yml"
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests pyyaml
+      - name: Check token
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        working-directory: scripts
+        run: |
+          python - <<'PY'
+          from common import load_config, graph_get
+          cfg = load_config()
+          me = graph_get(cfg, cfg["ig_user_id"], {"fields": "username,followers_count,media_count"})
+          print("인스타 계정 확인:", me)
+          lim = graph_get(cfg, cfg["ig_user_id"] + "/content_publishing_limit", {"fields": "quota_usage,config"})
+          print("게시 한도:", lim)
+          PY
