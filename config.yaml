@@ -1,0 +1,20 @@
+# 인스타 카드뉴스 자동 게시 설정
+handle: roum_hoon
+ig_user_id: "17841471529534749"
+page_id: "1467501633114780"
+graph_version: v27.0
+
+public_base_url: https://raw.githubusercontent.com/roum-hoon/roum-insta/main
+
+posting:
+  time_kst: "20:00"
+  require_approval: true
+
+contact:
+  phone: "010-3492-9402"
+  kakao_openchat: "https://open.kakao.com/o/sE3Mb0bh"
+  threads: "roum_hoon"
+  youtube: "https://www.youtube.com/@영업의민족"
+
+visuals:
+  enabled: false   # GPT 배경 이미지 (기본 꺼짐)

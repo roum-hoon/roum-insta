@@ -1,0 +1,30 @@
+name: publish
+on:
+  schedule:
+    - cron: "0 11 * * *"   # 20:00 KST
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "게시할 날짜 (YYYY-MM-DD, 비우면 오늘)"
+        required: false
+concurrency:
+  group: roum-state
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests pyyaml
+      - name: Publish today
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: python scripts/publish.py ${{ github.event.inputs.date }}
+      - name: Commit state
+        if: always()
+        run: bash .github/workflows/_commit.sh "bot: publish log"

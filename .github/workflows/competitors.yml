@@ -1,0 +1,23 @@
+name: competitors
+on:
+  schedule:
+    - cron: "0 21 * * 0"   # 월 06:00 KST
+  workflow_dispatch:
+concurrency:
+  group: roum-state
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests pyyaml
+      - env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: python scripts/track_competitors.py
+      - run: bash .github/workflows/_commit.sh "bot: competitor data"

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=block" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1c2e; --bg2:#16294a; --ink:#ffffff; --muted:#a9b6cc;
+    --accent:#ffc93c; --accent-ink:#1a1300; --line:rgba(255,255,255,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1350px;overflow:hidden}
+  body{
+    background:radial-gradient(120% 80% at 85% 0%, var(--bg2) 0%, var(--bg) 60%);
+    color:var(--ink);font-family:"Noto Sans KR",sans-serif;word-break:keep-all;
+  }
+  .card{position:relative;width:1080px;height:1350px;padding:110px 96px 120px;display:flex;flex-direction:column}
+  .top{display:flex;justify-content:space-between;align-items:center;font-size:30px;color:var(--muted);font-weight:500;letter-spacing:.5px}
+  .page{font-variant-numeric:tabular-nums}
+  .kicker{display:inline-block;align-self:flex-start;background:var(--accent);color:var(--accent-ink);font-weight:900;font-size:36px;padding:12px 26px;border-radius:999px;margin-bottom:44px}
+  h1{font-family:"Black Han Sans",sans-serif;font-weight:400;line-height:1.22;letter-spacing:-1px}
+  .hl{color:var(--accent)}
+  .cover h1{font-size:118px}
+  .cover .sub{margin-top:52px;font-size:42px;line-height:1.55;color:var(--muted);font-weight:500}
+  .cover .body{flex:1;display:flex;flex-direction:column;justify-content:center}
+  .swipe{font-size:34px;color:var(--accent);font-weight:700}
+  .no{font-family:"Black Han Sans",sans-serif;font-size:150px;color:var(--accent);line-height:1;margin:40px 0 28px}
+  .point h1,.list h1{font-size:80px}
+  .text{margin-top:44px;font-size:42px;line-height:1.7;color:#e6ecf5;font-weight:400}
+  .say{margin-top:52px;background:rgba(255,201,60,.1);border-left:10px solid var(--accent);border-radius:0 24px 24px 0;padding:36px 40px;font-size:40px;line-height:1.6;font-weight:500}
+  .say b{display:block;font-size:30px;color:var(--accent);margin-bottom:12px;font-weight:700}
+  .list ul{list-style:none;margin-top:56px;display:flex;flex-direction:column;gap:30px}
+  .list li{display:flex;gap:26px;font-size:42px;line-height:1.5;padding-bottom:30px;border-bottom:2px solid var(--line)}
+  .list li:last-child{border-bottom:none}
+  .list li::before{content:"✓";color:var(--accent);font-weight:900;flex:none}
+  .cta, .follow{justify-content:center;text-align:center}
+  .cta .body,.follow .body{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center}
+  .cta h1,.follow h1{font-size:84px}
+  .word{margin-top:64px;font-size:46px;font-weight:700;line-height:1.6}
+  .word .kw{display:inline-block;margin:24px 0 8px;font-family:"Black Han Sans",sans-serif;font-size:150px;color:var(--accent-ink);background:var(--accent);padding:6px 60px 14px;border-radius:32px}
+  .follow .text{color:var(--muted)}
+  .handle{font-size:34px;color:var(--muted);font-weight:500}
+  .foot{position:absolute;left:96px;right:96px;bottom:70px;display:flex;justify-content:space-between;font-size:28px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="card" id="card"></div>
+<script>
+const DATA = /*__DATA__*/null || {index:1,total:6,handle:"roum_hoon",slide:{kind:"cover",kicker:"미리보기",title:"카드 [[미리보기]]",sub:"부제"}};
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = s => esc(s).replace(/\\n|\n/g,"<br>").replace(/\[\[(.+?)\]\]/g,'<span class="hl">$1</span>');
+const s = DATA.slide, card = document.getElementById("card");
+card.classList.add(s.kind);
+const top = `<div class="top"><span>@${esc(DATA.handle)}</span><span class="page">${DATA.index} / ${DATA.total}</span></div>`;
+let html = top;
+if (s.kind === "cover") {
+  html += `<div class="body">${s.kicker?`<div class="kicker">${fmt(s.kicker)}</div>`:""}<h1>${fmt(s.title)}</h1>${s.sub?`<div class="sub">${fmt(s.sub)}</div>`:""}</div><div class="swipe">옆으로 넘겨보세요 →</div>`;
+} else if (s.kind === "point") {
+  html += `<div class="no">${esc(s.no||"")}</div><h1>${fmt(s.title)}</h1>${s.body?`<div class="text">${fmt(s.body)}</div>`:""}${s.say?`<div class="say"><b>이렇게 말해보세요</b>${fmt(s.say)}</div>`:""}`;
+} else if (s.kind === "list") {
+  html += `<div style="height:60px"></div>${s.kicker?`<div class="kicker">${fmt(s.kicker)}</div>`:""}<h1>${fmt(s.title)}</h1><ul>${(s.items||[]).map(i=>`<li><span>${fmt(i)}</span></li>`).join("")}</ul>`;
+} else if (s.kind === "cta") {
+  html += `<div class="body"><h1>${fmt(s.title)}</h1><div class="word">댓글에<br><span class="kw">${esc(s.word)}</span><br>남기시면 DM으로 보내드려요 📩</div></div><div class="handle">@${esc(DATA.handle)}</div>`;
+} else {
+  html += `<div class="body"><h1>${fmt(s.title)}</h1>${s.body?`<div class="text">${fmt(s.body)}</div>`:""}<div class="word" style="margin-top:70px">저장 🔖 · 동료에게 공유 ↗<br>팔로우하고 매일 받아보세요</div></div><div class="handle">@${esc(DATA.handle)}</div>`;
+}
+card.innerHTML = html;
+</script>
+</body>
+</html>
