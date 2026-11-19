@@ -20,4 +20,4 @@ jobs:
       - env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: python scripts/track_competitors.py
-      - run: bash .github/workflows/_commit.sh "bot: competitor data"
+      - run: bash .github/workflows/_commit.sh "bot - competitor data"

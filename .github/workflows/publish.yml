@@ -27,4 +27,4 @@ jobs:
         run: python scripts/publish.py ${{ github.event.inputs.date }}
       - name: Commit state
         if: always()
-        run: bash .github/workflows/_commit.sh "bot: publish log"
+        run: bash .github/workflows/_commit.sh "bot - publish log"

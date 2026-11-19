@@ -5,6 +5,8 @@ on:
     paths:
       - "content/queue/**/post.json"
       - "templates/**"
+      - "scripts/render.py"
+      - ".github/workflows/render.yml"
   workflow_dispatch:
 concurrency:
   group: roum-state
@@ -34,4 +36,4 @@ jobs:
           # 템플릿이 바뀌었으면 승인 전 게시물 전부 다시 렌더
           python scripts/render.py --pending
       - name: Commit images
-        run: bash .github/workflows/_commit.sh "bot: render cards"
+        run: bash .github/workflows/_commit.sh "bot - render cards"
