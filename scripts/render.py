@@ -5,6 +5,8 @@
   python scripts/render.py --pending       # 이미지가 없거나 post.json 이 더 새로운 날짜 전부
 """
 import json
+import os
+import subprocess
 import sys
 
 from playwright.sync_api import sync_playwright
@@ -14,16 +16,31 @@ from common import QUEUE, ROOT, read_json
 TEMPLATE = (ROOT / "templates" / "card.html").read_text(encoding="utf-8")
 
 
+def changed_files():
+    """이번 푸시에서 바뀐 파일 목록 (BEFORE_SHA 환경변수). 알 수 없으면 None."""
+    before = os.environ.get("BEFORE_SHA", "")
+    if not before or set(before) == {"0"}:
+        return None
+    try:
+        out = subprocess.run(["git", "diff", "--name-only", before, "HEAD"], cwd=ROOT,
+                             capture_output=True, text=True, check=True).stdout
+        return set(out.split())
+    except Exception:
+        return None
+
+
+CHANGED = changed_files()
+
+
 def needs_render(folder):
     post = folder / "post.json"
-    first = folder / "slide-01.jpg"
-    if not post.exists():
+    if not post.exists() or read_json(post, {}).get("status") == "published":
         return False
-    if not first.exists():
+    if not (folder / "slide-01.jpg").exists() or CHANGED is None:
         return True
-    tmpl = ROOT / "templates" / "card.html"
-    newest_src = max(post.stat().st_mtime, tmpl.stat().st_mtime)
-    return newest_src > first.stat().st_mtime
+    if any(f.startswith("templates/") or f == "scripts/render.py" for f in CHANGED):
+        return True
+    return f"content/queue/{folder.name}/post.json" in CHANGED
 
 
 def render_date(page, folder):

@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -32,6 +34,8 @@ jobs:
           pip install -r requirements.txt
           python -m playwright install --with-deps chromium
       - name: Render pending
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
         run: |
           # 템플릿이 바뀌었으면 승인 전 게시물 전부 다시 렌더
           python scripts/render.py --pending
