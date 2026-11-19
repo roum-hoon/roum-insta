@@ -36,7 +36,8 @@ def render_date(page, folder):
         data = {"slide": slide, "index": i, "total": total, "handle": post.get("handle", "")}
         html = TEMPLATE.replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False))
         page.set_content(html, wait_until="networkidle")
-        page.evaluate("document.fonts.ready")
+        page.evaluate("document.fonts.ready.then(() => 1)")
+        page.wait_for_timeout(400)  # 제목 크기 맞춤(fit)이 끝날 시간
         page.screenshot(path=str(folder / f"slide-{i:02d}.jpg"), type="jpeg", quality=92,
                         clip={"x": 0, "y": 0, "width": 1080, "height": 1350})
     print(f"{folder.name}: {total}장 렌더")
