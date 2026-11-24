@@ -21,12 +21,17 @@ jobs:
         working-directory: scripts
         run: |
           python - <<'PY'
+          import sys
           from common import load_config, graph_get
           cfg = load_config()
-          me = graph_get(cfg, cfg["ig_user_id"], {"fields": "username,followers_count,media_count"})
-          print("인스타 계정 확인:", me)
-          lim = graph_get(cfg, cfg["ig_user_id"] + "/content_publishing_limit", {"fields": "quota_usage,config"})
-          print("게시 한도:", lim)
+          try:
+              me = graph_get(cfg, cfg["ig_user_id"], {"fields": "username,followers_count,media_count"})
+              print("인스타 계정 확인:", me)
+              lim = graph_get(cfg, cfg["ig_user_id"] + "/content_publishing_limit", {"fields": "quota_usage,config"})
+              print("게시 한도:", lim)
+          except BaseException as e:
+              print("::error::" + str(e).replace("\n", " ")[:900])
+              sys.exit(1)
           PY
       - name: Dry-run publish (no posting)
         env:
