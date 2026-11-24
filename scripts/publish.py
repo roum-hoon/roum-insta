@@ -19,7 +19,7 @@ def wait_finished(cfg, cid, label):
     raise RuntimeError(f"{label} 컨테이너가 시간 안에 준비되지 않았습니다.")
 
 
-def main(date=None):
+def main(date=None, dry_run=False):
     cfg = load_config()
     date = date or today_kst()
     folder = QUEUE / date
@@ -66,6 +66,9 @@ def main(date=None):
         res = graph_post(cfg, f"{ig}/media", {"media_type": "CAROUSEL", "children": ",".join(children),
                                                "caption": caption})
     wait_finished(cfg, res["id"], "carousel")
+    if dry_run:
+        print(f"{date}: 점검 통과 (컨테이너 준비 완료, 실제 게시는 하지 않음)")
+        return
     pub = graph_post(cfg, f"{ig}/media_publish", {"creation_id": res["id"]})
     media_id = pub["id"]
     link = graph_get(cfg, media_id, {"fields": "permalink"}).get("permalink", "")
@@ -80,4 +83,19 @@ def main(date=None):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else None)
+    args = [a for a in sys.argv[1:] if a]
+    dry = "--dry-run" in args
+    dates = [a for a in args if not a.startswith("--")]
+    try:
+        main(dates[0] if dates else None, dry_run=dry)
+    except BaseException as e:  # 오류 내용을 공개 주석(annotation)과 파일로 남긴다
+        msg = str(e).replace("\n", " ")[:900]
+        if "access_token" in msg:
+            msg = msg.split("access_token")[0] + "[토큰 가림]"
+        print(f"::error::{msg}")
+        if not dry:
+            from common import ROOT
+            (ROOT / "state").mkdir(exist_ok=True)
+            (ROOT / "state" / "last_error.txt").write_text(
+                f"{datetime.now(KST).isoformat(timespec='seconds')} {msg}\n", encoding="utf-8")
+        sys.exit(1)
