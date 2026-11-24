@@ -39,6 +39,9 @@ def main(date=None, dry_run=False):
         print(f"{date}: 승인되지 않음 → 게시 안 함")
         return
 
+    if post.get("template") == "customer" and not post.get("review_no"):
+        raise SystemExit(f"{date}: 고객용 게시물인데 심의필 번호가 없습니다 → 게시 중단")
+
     images = sorted(folder.glob("slide-*.jpg"))
     if not images:
         raise SystemExit(f"{date}: 카드 이미지가 없습니다 (렌더 확인).")

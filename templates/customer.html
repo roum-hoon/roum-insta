@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&family=Nanum+Pen+Script&display=block" rel="stylesheet">
+<style>
+  /* 딸에게 쓰는 보험편지 — 편지지 톤(아이보리 종이 + 남색 잉크 + 산호색 밑줄) */
+  :root{
+    --paper:#fbf7ef; --paper2:#f3ecdf; --ink:#1f2a44; --muted:#6b7280; --rule:#e6dccb;
+    --coral:#e0705b; --coral-soft:#fbe3dc; --navy:#1f2a44;
+    --serif:"Gowun Batang",serif; --sans:"Noto Sans KR",sans-serif; --pen:"Nanum Pen Script",cursive;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1350px;overflow:hidden}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);word-break:keep-all;
+    background-image:repeating-linear-gradient(to bottom, transparent 0 87px, var(--rule) 87px 89px);
+    background-position:0 40px}
+  .card{position:relative;width:1080px;height:1350px;padding:104px 96px 150px;display:flex;flex-direction:column}
+  .top{display:flex;justify-content:space-between;align-items:center;font-size:30px;color:var(--muted);font-weight:500}
+  .brand{font-family:var(--pen);font-size:44px;color:var(--coral)}
+  .kicker{align-self:flex-start;font-weight:700;font-size:34px;color:var(--coral);border-bottom:4px solid var(--coral);padding-bottom:6px;margin-bottom:40px}
+  h1{font-family:var(--serif);font-weight:700;line-height:1.3;letter-spacing:-1px}
+  .hl{box-shadow:inset 0 -0.36em 0 var(--coral-soft)}
+  .cover .body{flex:1;display:flex;flex-direction:column;justify-content:center}
+  .cover h1{font-size:104px}
+  .cover .sub{margin-top:48px;font-size:42px;line-height:1.6;color:#4b5563}
+  .swipe{font-family:var(--pen);font-size:48px;color:var(--coral)}
+  .no{font-family:var(--pen);font-size:96px;color:var(--coral);line-height:1;margin:36px 0 18px}
+  .point h1,.list h1,.check h1{font-size:76px}
+  .text{margin-top:40px;font-size:42px;line-height:1.75;color:#2b3550}
+  .tip{margin-top:48px;background:#fff;border:3px solid var(--ink);border-radius:20px;padding:30px 36px;font-size:38px;line-height:1.6;box-shadow:10px 10px 0 var(--coral-soft)}
+  .tip b{display:block;font-size:30px;color:var(--coral);margin-bottom:8px}
+  ul{list-style:none;margin-top:52px;display:flex;flex-direction:column;gap:26px}
+  li{display:flex;gap:24px;font-size:42px;line-height:1.5;background:#fff;border-radius:18px;padding:22px 28px;border:2px solid var(--rule)}
+  .list li::before{content:"✓";color:var(--coral);font-weight:900;flex:none}
+  .check li::before{content:"☐";color:var(--ink);font-weight:700;flex:none}
+  .cta{text-align:center}
+  .cta .body{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center}
+  .cta h1{font-size:80px}
+  .cta .text{text-align:center}
+  .sign{margin-top:56px;font-family:var(--pen);font-size:64px;color:var(--coral)}
+  .contact{margin-top:40px;font-size:36px;line-height:1.7;color:#2b3550;font-weight:500}
+  .review{position:absolute;left:96px;right:96px;bottom:56px;font-size:24px;color:var(--muted);line-height:1.5}
+  .review.missing{color:#c0392b;border:3px dashed #c0392b;padding:8px 14px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="card" id="card"></div>
+<script>
+(() => {
+const DATA = /*__DATA__*/null || {index:1,total:6,handle:"dad.insu.letter",review_no:"",slide:{kind:"cover",kicker:"미리보기",title:"카드 [[미리보기]]",sub:"부제"}};
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = s => esc(s).replace(/\\n|\n/g,"<br>").replace(/\[\[(.+?)\]\]/g,'<span class="hl">$1</span>');
+const s = DATA.slide, card = document.getElementById("card");
+card.classList.add(s.kind);
+const header = `<div class="top"><span class="brand">딸에게 쓰는 보험편지</span><span>${DATA.index} / ${DATA.total}</span></div>`;
+let html = header;
+if (s.kind === "cover") {
+  html += `<div class="body">${s.kicker?`<div class="kicker">${fmt(s.kicker)}</div>`:""}<h1>${fmt(s.title)}</h1>${s.sub?`<div class="sub">${fmt(s.sub)}</div>`:""}</div><div class="swipe">넘겨서 읽어 주세요 →</div>`;
+} else if (s.kind === "point") {
+  html += `<div class="no">${esc(s.no||"")}</div><h1>${fmt(s.title)}</h1>${s.body?`<div class="text">${fmt(s.body)}</div>`:""}${s.tip?`<div class="tip"><b>아빠의 한마디</b>${fmt(s.tip)}</div>`:""}`;
+} else if (s.kind === "list" || s.kind === "check") {
+  html += `<div style="height:56px"></div>${s.kicker?`<div class="kicker">${fmt(s.kicker)}</div>`:""}<h1>${fmt(s.title)}</h1><ul>${(s.items||[]).map(i=>`<li><span>${fmt(i)}</span></li>`).join("")}</ul>`;
+} else {
+  html += `<div class="body"><h1>${fmt(s.title)}</h1>${s.body?`<div class="text">${fmt(s.body)}</div>`:""}<div class="sign">— 딸 둘 아빠가</div>${s.contact?`<div class="contact">${fmt(s.contact)}</div>`:""}</div>`;
+}
+if (DATA.index === DATA.total) {
+  html += DATA.review_no
+    ? `<div class="review">${esc(DATA.review_no)}</div>`
+    : `<div class="review missing">심의필 번호 기입 예정 (심의 전 초안 · 게시 금지)</div>`;
+}
+card.innerHTML = html;
+const fit = () => document.querySelectorAll("h1").forEach(h => {
+  h.style.whiteSpace = "nowrap";
+  let size = parseFloat(getComputedStyle(h).fontSize);
+  while (h.scrollWidth > h.clientWidth && size > 40) { size -= 2; h.style.fontSize = size + "px"; }
+});
+fit();
+document.fonts && document.fonts.ready.then(fit);
+})();
+</script>
+</body>
+</html>

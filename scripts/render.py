@@ -50,8 +50,12 @@ def render_date(page, folder):
         old.unlink()
     total = len(slides)
     for i, slide in enumerate(slides, 1):
-        data = {"slide": slide, "index": i, "total": total, "handle": post.get("handle", "")}
-        html = TEMPLATE.replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False))
+        data = {"slide": slide, "index": i, "total": total, "handle": post.get("handle", ""),
+                "review_no": post.get("review_no", "")}
+        tmpl = TEMPLATE
+        if post.get("template"):
+            tmpl = (ROOT / "templates" / f"{post['template']}.html").read_text(encoding="utf-8")
+        html = tmpl.replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False))
         page.set_content(html, wait_until="networkidle")
         page.evaluate("document.fonts.ready.then(() => 1)")
         page.wait_for_timeout(400)  # 제목 크기 맞춤(fit)이 끝날 시간
